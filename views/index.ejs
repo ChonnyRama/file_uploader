@@ -11,21 +11,31 @@
 <body>
 
   <h1>File Uploader</h1>
-  <form action="/log-in" method="post">
-    <p>Log in </p>
-    <label for="username">
-      username
-      <input type="text" name="username" id="username">
-    </label>
-    <label for="password">
-      password
-      <input type="password" name="password" id="password">
-    </label>
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-  <button class="btn">
-    <a href="/sign-up"> Sign Up </a>
-  </button>
+
+  <%if (!user) {%>
+    <form action="/log-in" method="post">
+      <p>Log in </p>
+      <label for="username">
+        username
+        <input type="text" name="username" id="username">
+      </label>
+      <label for="password">
+        password
+        <input type="password" name="password" id="password">
+      </label>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <button class="btn">
+      <a href="/register"> Sign Up </a>
+    </button>
+    <%}else {%>
+      <p>Welcome! <%= user.username%>
+      </p>
+      <button>
+        <a href="/log-out">Log Out</a>
+      </button>
+      <%}%>
+
 
 </body>
 

@@ -9,6 +9,7 @@ const { PrismaSessionStore } = require('@quixo3/prisma-session-store')
 const { PrismaClient } = require("@prisma/client")
 const bcrypt = require("bcryptjs")
 const uploaderRouter = require("./routes/uploaderRouter")
+const { gracefulShutdown } = require("./controllers/uploaderController")
 
 //create express application
 const app = express();
@@ -102,11 +103,23 @@ app.post("/log-in",
 )
 
 app.get("/log-out", (req, res, next) => {
-  req.logout();
+  req.logout((err) => {
+  if (err) {
+    return next(err)
+  }
   res.redirect("/")
+})
 })
 
 app.use('/', uploaderRouter)
+
+process.on("SIGINT", async () => {
+  console.log("Shutting down gracefully...");
+  await gracefulShutdown(() => {
+    console.log("Application shutdown complete.");
+    process.exit(0);  // Ensure the process exits cleanly
+  });
+});
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, ()=> console.log("app listening on port 3000"))

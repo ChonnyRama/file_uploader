@@ -16,11 +16,11 @@ datasource db {
 model Session {
   id        String   @id
   sid       String   @unique
-  userId    Int
+  userId    Int?
   data      String
   createdAt DateTime @default(now())
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
 }
 
 model User {
