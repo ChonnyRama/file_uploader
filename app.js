@@ -8,8 +8,9 @@ require('dotenv').config();
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store')
 const { PrismaClient } = require("@prisma/client")
 const bcrypt = require("bcryptjs")
-const uploaderRouter = require("./routes/uploaderRouter")
-const { gracefulShutdown } = require("./controllers/uploaderController")
+const userRouter = require("./routes/userRouter")
+const { gracefulShutdown } = require("./controllers/userController")
+const fileRouter = require("./routes/fileRouter")
 
 //create express application
 const app = express();
@@ -111,7 +112,8 @@ app.get("/log-out", (req, res, next) => {
 })
 })
 
-app.use('/', uploaderRouter)
+app.use('/', userRouter)
+app.use('/files', fileRouter)
 
 process.on("SIGINT", async () => {
   console.log("Shutting down gracefully...");

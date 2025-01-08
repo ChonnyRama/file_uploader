@@ -31,6 +31,33 @@
     <%}else {%>
       <p>Welcome! <%= user.username%>
       </p>
+      <div class="folder-container">
+        <div class="folder-header">Name</div>
+        <div class="folder-header">Size</div>
+        <div class="folder-header">Last Modified</div>
+        <div class="folder-header">Created At</div>
+        <% folders.forEach(folder=> {%>
+          <div class="folder-item folder-name">
+            <%=folder.name%>
+          </div>
+          <div class="folder-item ">
+            <%=folder.stats.size%>
+          </div>
+          <div class="folder-item ">
+            <%=folder.stats.mtime%>
+          </div>
+          <div class="folder-item ">
+            <%=folder.stats.birthtime%>
+          </div>
+          <%})%>
+      </div>
+      <p>Create a new folder here</p>
+      <form action="/files/<%=user.id%>/create-folder" method="post">
+        <label for="dirName">
+          <input type="text" name="dirName" id="dirName">
+        </label>
+        <button type="submit" class="btn btn-primary">Create folder</button>
+      </form>
       <button>
         <a href="/log-out">Log Out</a>
       </button>

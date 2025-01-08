@@ -1,6 +1,10 @@
 const { body, validationResult } = require('express-validator')
 const bcrypt = require('bcryptjs')
 const { PrismaClient } = require('@prisma/client')
+const fs = require('node:fs/promises')
+const { join } = require('node:path')
+const {format} = require('date-fns')
+
 
 const prisma = new PrismaClient()
 
@@ -22,7 +26,26 @@ const validateUser = [
 
 async function uploadIndexGet(req, res, next) {
   try {
-    res.render('index', { user: res.locals.currentUser})
+    //get all folders in the user's directory
+    const userFolderPath = join(__dirname, '..', 'uploads',res.locals.currentUser.id.toString())
+    const folderNames = await fs.readdir(userFolderPath)
+
+    const folders = await Promise.all(
+      folderNames.map(async (folderName) => {
+        const fullPath = join(userFolderPath, folderName)
+        const stats = await fs.stat(fullPath)
+
+        return {
+          name: folderName,
+          stats: {
+            ...stats,
+            birthtime: format(stats.birthtime, 'MMMM dd, yyyy h:mm a'),
+            mtime: format(stats.mtime, 'MMMM dd, yyyy h:mm a')
+          }
+        }
+      }))
+
+    res.render('index', { user: res.locals.currentUser, folders: folders})
   } catch (err) {
     console.error('Error rendering', err)
     next(err)

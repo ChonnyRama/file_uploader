@@ -32,3 +32,28 @@ form {
 a {
   text-decoration: none;
 }
+
+.folder-container {
+  display: grid;
+  grid-template-columns: auto .5fr 1.2fr 1fr;
+}
+
+.folder-header {
+  font-weight: bold;
+  background-color: #f0f0f0;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.folder-item {
+  background-color: #f8f9fa;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.folder-item.folder-name:hover {
+  cursor: pointer;
+  background-color: #ddd;
+}
