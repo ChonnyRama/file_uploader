@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <h1>File Uploader</h1>
+  <%if (!files?.length) {%>
+    <p>No files uploaded yet</p>
+    <%}else {%>
+      <div class="folder-container">
+        <div class="folder-header">Name</div>
+        <div class="folder-header">Size</div>
+        <div class="folder-header">Last Modified</div>
+        <div class="folder-header"></div>
+        <% files.forEach(file=> {%>
+          <div class="folder-item folder-name">
+            <%=file.name%>
+              </a>
+          </div>
+          <div class="folder-item ">
+            <%=file.stats.size%>
+          </div>
+          <div class="folder-item ">
+            <%=file.stats.mtime%>
+          </div>
+          <div class="folder-item ">
+            <a href="/files/<%=user.id%>/<%=file.folderName%>/<%=file.name%>">Download</a>
+          </div>
+          <%})%>
+      </div>
+
+      <%}%>
+
+</body>
+
+</html>

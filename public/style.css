@@ -31,6 +31,7 @@ form {
 
 a {
   text-decoration: none;
+  color: black;
 }
 
 .folder-container {
@@ -56,4 +57,8 @@ a {
 .folder-item.folder-name:hover {
   cursor: pointer;
   background-color: #ddd;
+}
+
+.folder-item a {
+  display: block;
 }

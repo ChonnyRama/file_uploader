@@ -38,7 +38,9 @@
         <div class="folder-header">Created At</div>
         <% folders.forEach(folder=> {%>
           <div class="folder-item folder-name">
-            <%=folder.name%>
+            <a href="/files/<%=user.id%>/<%=folder.name%>">
+              <%=folder.name%>
+            </a>
           </div>
           <div class="folder-item ">
             <%=folder.stats.size%>
