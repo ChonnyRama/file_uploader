@@ -4,37 +4,40 @@ const { join } = require('node:path')
 const { format } = require('date-fns')
 const { v2: cloudinary } = require('cloudinary')
 const upload = multer({ dest: `uploads/toCloud` })
+const { PrismaClient } = require('@prisma/client')
+
+const prisma = new PrismaClient()
 
 
 
 async function fileFolderPost(req,res,next) {
-  const uploadFolder = join(__dirname,'..', 'uploads', req.params.id, req.body.dirName)
-  await fs.mkdir(uploadFolder, { recursive: true })
+  // const uploadFolder = join(__dirname,'..', 'uploads', req.params.id, req.body.dirName)
+  // await fs.mkdir(uploadFolder, { recursive: true })
+  await prisma.folder.create({
+    data: {
+      name: req.body.dirName,
+      size: 0,
+      userId: res.locals.currentUser.id
+    }
+  })
   
   res.redirect('/')
 }
 
 async function fileFolderGet(req, res, next) {
-  const currentFolder = join(__dirname, '..', 'uploads', req.params.id, req.params.folderName)
-  const fileNames = await fs.readdir(currentFolder)
-
-  const files = await Promise.all(
-    fileNames.map(async (fileName) => {
-      const fullPath = join(currentFolder, fileName)
-      const stats = await fs.stat(fullPath)
-
-      return {
-        name: fileName,
-        folderName: req.params.folderName,
-        stats: {
-          ...stats,
-          birthtime: format(stats.birthtime, 'MMMM dd, yyyy h:mm a'),
-          mtime: format(stats.mtime, 'MMMM dd, yyyy h:mm a')
-        }
+  try {
+    const files = await prisma.file.findMany({
+      where: {
+        name: req.params.folderName,
+        userId: res.locals.currentUser.id
       }
     })
-  )
-  res.render('folder', {user: res.locals.currentUser, files: files, currentPath: req.originalUrl})
+
+    res.render('folder', {user: res.locals.currentUser, files: files, currentPath: req.originalUrl})
+  } catch (err) {
+    console.error('Error retrieving folder contents:', err)
+    next(err)
+  }
 }
 
 async function fileFolderDownload(req, res, next) {
@@ -59,7 +62,25 @@ const fileFolderUpload = [
           display_name: req.body.fileName,
         }
       )
-      res.status(200).json({url: uploadResult.secure_url})
+
+      const folder = await prisma.folder.findUnique({
+        where: {
+          userId_folderName: {
+            userId: res.locals.currentUser.id,
+            name: req.params.folderName
+          }
+        }
+      })
+      await prisma.file.create({
+        data: {
+          name: req.body.fileName,
+          size: uploadResult.bytes,
+          url: uploadResult.secure_url,
+          userId: res.locals.currentUser.id,
+          folderId: folder.id
+        }
+      })
+      res.redirect(`/files/${res.locals.currentUser.id}/${req.params.folderName}`)
 
 
     } catch (err) {

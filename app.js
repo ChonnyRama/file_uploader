@@ -103,7 +103,11 @@ passport.deserializeUser(async (id, done) => {
 })
 
 app.use((req, res, next) => {
-  res.locals.currentUser = req.user || null;
+  if (req.user) {
+    res.locals.currentUser = req.user
+  } else {
+    res.locals.currentUser = null
+  }
   next()
 })
 

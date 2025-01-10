@@ -26,26 +26,26 @@ const validateUser = [
 
 async function uploadIndexGet(req, res, next) {
   try {
-    //get all folders in the user's directory
-    const userFolderPath = join(__dirname, '..', 'uploads',res.locals.currentUser.id.toString())
-    const folderNames = await fs.readdir(userFolderPath)
-
-    const folders = await Promise.all(
-      folderNames.map(async (folderName) => {
-        const fullPath = join(userFolderPath, folderName)
-        const stats = await fs.stat(fullPath)
-
-        return {
-          name: folderName,
-          stats: {
-            ...stats,
-            birthtime: format(stats.birthtime, 'MMMM dd, yyyy h:mm a'),
-            mtime: format(stats.mtime, 'MMMM dd, yyyy h:mm a')
-          }
-        }
-      }))
-
-    res.render('index', { user: res.locals.currentUser, folders: folders})
+    if (!res.locals.currentUser) {
+      return res.render('index', {
+        user: null,
+        folders: []
+      })
+    }
+    const folders = await prisma.folder.findMany({
+      where: {
+        userId: res.locals.currentUser.id
+      }
+    })
+    const formattedFolders = await Promise.all(folders.map(async (folder) => {
+      return {
+        ...folder,
+        createdAt: format(folder.createdAt, 'MMMM dd, yyyy h:mm a'),
+        updatedAt: format(folder.updatedAt, 'MMMM dd, yyyy h:mm a'),
+      }
+    })
+    )
+    res.render('index', { user: res.locals.currentUser, folders: formattedFolders})
   } catch (err) {
     console.error('Error rendering', err)
     next(err)
@@ -72,13 +72,13 @@ const uploadSignupPost = [
     }
     try {
       const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        await prisma.user.create({
-          data: {
-            username: req.body.username,
-            email: req.body.email,
-            password: hashedPassword,
-          }
-        })
+      await prisma.user.create({
+        data: {
+          username: req.body.username,
+          email: req.body.email,
+          password: hashedPassword,
+        }
+      })
       res.redirect("/")
     } catch (err) {
       console.error('Error creating user: ',err)
