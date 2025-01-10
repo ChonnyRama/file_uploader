@@ -36,6 +36,13 @@
       </div>
 
       <%}%>
+        <div class="upload-container">
+          <form class="upload-form" action="<%=currentPath%>/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="fileToUp" id="fileToUp">
+            <input type="text" name="fileName" id="fileName">
+            <button type="submit" class="btn btn-primary">Upload</button>
+          </form>
+        </div>
 
 </body>
 

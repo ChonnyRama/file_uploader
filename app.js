@@ -11,6 +11,8 @@ const bcrypt = require("bcryptjs")
 const userRouter = require("./routes/userRouter")
 const { gracefulShutdown } = require("./controllers/userController")
 const fileRouter = require("./routes/fileRouter")
+const { v2:cloudinary } = require('cloudinary')
+
 
 //create express application
 const app = express();
@@ -25,6 +27,15 @@ const assetsPath = path.join(__dirname, "public");
 app.use(express.static(assetsPath))
 
 const prisma = new PrismaClient()
+
+//cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
+module.exports = cloudinary
 
 app.use(
   session({

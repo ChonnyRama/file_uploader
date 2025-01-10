@@ -26,7 +26,8 @@ form {
 
 .btn {
   align-self: center;
-  padding: 0 20px;
+  padding: 5px 20px;
+  border-radius: 20px;
 }
 
 a {
@@ -61,4 +62,18 @@ a {
 
 .folder-item a {
   display: block;
+}
+
+.upload-form {
+  background-color: #e7e5e5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: solid black 1px;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+#fileToUp {
 }
