@@ -24,13 +24,13 @@
               </a>
           </div>
           <div class="folder-item ">
-            <%=file.stats.size%>
+            <%=file.size%>
           </div>
           <div class="folder-item ">
-            <%=file.stats.mtime%>
+            <%=file.updatedAt%>
           </div>
           <div class="folder-item ">
-            <a href="/files/<%=user.id%>/<%=file.folderName%>/<%=file.name%>">Download</a>
+            <a href="/files/<%=user.id%>/<%=file.folderId%>/<%=file.name%>">Download</a>
           </div>
           <%})%>
       </div>

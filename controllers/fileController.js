@@ -5,6 +5,7 @@ const { format } = require('date-fns')
 const { v2: cloudinary } = require('cloudinary')
 const upload = multer({ dest: `uploads/toCloud` })
 const { PrismaClient } = require('@prisma/client')
+const {PassThrough} = require('stream')
 
 const prisma = new PrismaClient()
 
@@ -26,9 +27,18 @@ async function fileFolderPost(req,res,next) {
 
 async function fileFolderGet(req, res, next) {
   try {
+          const folder = await prisma.folder.findUnique({
+        where: {
+          userId_name: {
+            userId: res.locals.currentUser.id,
+            name: req.params.folderName
+          }
+        }
+          })
+    
     const files = await prisma.file.findMany({
       where: {
-        name: req.params.folderName,
+        folderId: folder.id,
         userId: res.locals.currentUser.id
       }
     })
@@ -42,10 +52,47 @@ async function fileFolderGet(req, res, next) {
 
 async function fileFolderDownload(req, res, next) {
   try {
-    const filePath = join(__dirname, '..', 'uploads', req.params.id, req.params.folderName, req.params.fileName)
-    res.download(filePath)
+    const file = await prisma.file.findFirst({
+      where: {
+        name: req.params.fileName,
+        userId: res.locals.currentUser.id,
+        folder: {
+          id: parseInt(req.params.folderId, 10),
+        },
+      },
+    });
+
+    if (!file) {
+      return res.status(404).send('File not found');
+    }
+
+    const fileUrl = file.url;
+
+    const response = await fetch(fileUrl);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch file from Cloudinary');
+    }
+
+    res.setHeader('Content-Disposition', `attachment; filename="${req.params.fileName}"`);
+    res.setHeader('Content-Type', response.headers.get('content-type'));
+
+    // Stream file content manually
+    const reader = response.body.getReader();
+    let done = false;
+
+    while (!done) {
+      const { value, done: isDone } = await reader.read();
+      done = isDone;
+      if (value) {
+        res.write(value);
+      }
+    }
+
+    res.end();
   } catch (err) {
-    console.error('Error downloading file:', err)
+    console.error('Error downloading file:', err);
+    res.status(500).send('Error downloading file');
   }
 }
 
@@ -65,7 +112,7 @@ const fileFolderUpload = [
 
       const folder = await prisma.folder.findUnique({
         where: {
-          userId_folderName: {
+          userId_name: {
             userId: res.locals.currentUser.id,
             name: req.params.folderName
           }

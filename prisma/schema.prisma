@@ -45,6 +45,8 @@ model Folder {
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   files     File[]
+
+  @@unique([userId, name])
 }
 
 model File {
